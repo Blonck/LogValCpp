@@ -111,10 +111,7 @@ class LogVal {
     }
 
     auto operator-=(const LogVal rhs) noexcept -> LogVal & {
-        // Quick workaround until the following is adopted for negative LogVals
-        // this->log_val_ += std::log(1.0 - rhs_to/lhs_to);
-        // TODO remove using .to() as it undermines the idea of this class
-        *this = LogVal(this->to() - rhs.to());
+        *this += -rhs;
 
         return *this;
     }

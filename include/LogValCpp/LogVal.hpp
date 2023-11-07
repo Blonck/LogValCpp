@@ -74,6 +74,9 @@ class LogVal {
     /**
      * Adds `rhs` to this LogVal.
      *
+     * Compared to normal addition this method is very slow. Doing the addition involves
+     * several comparisons and a logarithmic operation.
+     *
      * @param rhs summand added to this LogVal.
      *
      * @returns reference to this LogVal.
@@ -108,8 +111,19 @@ class LogVal {
         }
 
         return *this;
+
     }
 
+    /**
+     * Subtract `rhs` to this LogVal.
+     *
+     * Compared to normal addition this method is very slow. Doing the addition involves
+     * several comparisons and a logarithmic operation.
+     *
+     * @param rhs summand added to this LogVal.
+     *
+     * @returns reference to this LogVal.
+     */
     auto operator-=(const LogVal rhs) noexcept -> LogVal & {
         *this += -rhs;
 
@@ -134,6 +148,10 @@ class LogVal {
      * @returns `true` if both LogVals are equal, else `false`.
      */
     [[nodiscard]] auto operator==(const LogVal rhs) const noexcept -> bool {
+        if (this->sign_ == Sign::null && rhs.sign_ == Sign::null) {
+            return true;
+        }
+
         return (this->sign_ == rhs.sign_) && (this->log_val_ == rhs.log_val_);
     }
 

@@ -9,9 +9,6 @@
 TEST_CASE("Equal comparision", "[comparision]") {
     auto val = GENERATE(0.0, -0.0, 0.01, 2.0, 3456.0, 3.45e7, -2.0, -3.5e11);
 
-    // The current comparison requires that std::log(0) == std::log(0)
-    REQUIRE(std::log(0) == std::log(0));
-
     REQUIRE(LogVal(val) == LogVal(val));
 
     const LogVal val1(val);
@@ -19,6 +16,24 @@ TEST_CASE("Equal comparision", "[comparision]") {
 
     const LogVal val2(val);
     REQUIRE(val1 == val2);
+}
+
+TEST_CASE("Equal comparision - special cases", "[comparision]") {
+    // The comparison requires that std::log(0) == std::log(0)
+    REQUIRE(std::log(0) == std::log(0));
+
+    auto rhs = GENERATE(-2.0, 0.0, 2.0);
+
+    // After multiplication with 0, LogVals must be euqal
+    // independently of the initialization.
+    LogVal val1(1.0);
+    LogVal val2(rhs);
+    const LogVal null(0.0);
+    val1 *= null;
+    val2 *= null;
+
+    REQUIRE(val1 == val2);
+
 }
 
 TEST_CASE("Unequal comparision", "[comparision]") {

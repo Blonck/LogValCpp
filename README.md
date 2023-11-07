@@ -10,7 +10,8 @@ Basically it is a wrapper around these identities:
 ```math
 \displaylines{
     \log_b(xy) = log_b(x) + log_b(y) \\
-    \log_b(a + c) = log_b(a) + log_b(1 + \frac{c}{a})
+    \log_b(a + c) = log_b(a) + log_b(1 + \frac{c}{a}) \\
+    \log_b(a - c) = log_b(a) + log_b(1 - \frac{c}{a})
 }
 ```
 

@@ -102,14 +102,16 @@ class LogVal {
             return *this;
         }
 
-        // When the sign is identical we can use the normal addition rule.
+        // If the sign is identical we can use the normal addition rule.
         if (this->sign_ == rhs.sign_) {
-            // For improved accuracy.
+            // For improved accuracy do the addition dependent on the relative size
+            // of the internal logarithmic representation.
             if(this->log_val_ >= rhs.log_val_) {
                 this->log_val_ = internal_add(this->log_val_, rhs.log_val_);
             } else {
                 this->log_val_ = internal_add(rhs.log_val_, this->log_val_);
             }
+        // If the sign is different, the operation depends on which of the operands is "larger".
         } else {
             if (rhs.log_val_ < this->log_val_) {
                 this->log_val_ = internal_subtract(this->log_val_, rhs.log_val_);

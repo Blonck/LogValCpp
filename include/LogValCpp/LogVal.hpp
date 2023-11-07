@@ -6,10 +6,17 @@
 #include <cstdint>
 #include <iostream>
 
-// Representing numerical values via logarithms to express large numbers.
-// Remarks:
-// * division with 0 will lead to nan, in contrast to doubles where it could be
-// -inf, nan, inf depending on dividend
+/** Represents a number using a logarithmic representation.
+ *
+ * This class is capable to store very large values and multiply them efficiently.
+ * This comes at the cost that there is a much larger inherent accuracy loss
+ * for all operations and that additions/subtractions are more costly compared
+ * to `floats` and `doubles`.
+ *
+ * Remarks:
+ * * division with 0 will lead to nan, in contrast to doubles where it could be
+ * -inf, nan, inf depending on dividend
+ */
 template <typename T = double>
     requires std::floating_point<T>
 class LogVal {
@@ -82,10 +89,12 @@ class LogVal {
      * @returns reference to this LogVal.
      */
     auto operator+=(const LogVal rhs) noexcept -> LogVal & {
+        // Adding 0 to `this` does not change this.
         if(rhs.sign_ == Sign::null){
             return *this;
         }
 
+        // If `this` is 0, just use rhs for `this`.
         if(this->sign_ == Sign::null){
             this->sign_ = rhs.sign_;
             this->log_val_ = rhs.log_val_;
@@ -93,7 +102,9 @@ class LogVal {
             return *this;
         }
 
+        // When the sign is identical we can use the normal addition rule.
         if (this->sign_ == rhs.sign_) {
+            // For improved accuracy.
             if(this->log_val_ >= rhs.log_val_) {
                 this->log_val_ = internal_add(this->log_val_, rhs.log_val_);
             } else {

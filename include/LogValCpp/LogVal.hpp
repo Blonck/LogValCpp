@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <iostream>
 
-// TODO need to add flag for negative numbers
+// Representing numerical values via logarithms to express large numbers.
 // Remarks:
 // * division with 0 will lead to nan, in contrast to doubles where it could be
 // -inf, nan, inf depending on dividend
@@ -64,8 +64,7 @@ class LogVal {
     }
 
     auto operator/=(const LogVal rhs) noexcept -> LogVal & {
-        // ignore division with 0.0 for now, log_val_ will be no-finite in this
-        // case for now
+        // No special treatment for division with 0.0 for now.
         this->sign_ = as_sign(as_int(this->sign_) * as_int(rhs.sign_));
         this->log_val_ -= rhs.log_val_;
 
@@ -80,9 +79,33 @@ class LogVal {
      * @returns reference to this LogVal.
      */
     auto operator+=(const LogVal rhs) noexcept -> LogVal & {
-        // Quick workaround until the following is adopted for negative LogVals
-        // this->log_val_ += std::log1p(rhs_to/lhs_to);
-        *this = LogVal(this->to() + rhs.to());
+        if(rhs.sign_ == Sign::null){
+            return *this;
+        }
+
+        if(this->sign_ == Sign::null){
+            this->sign_ = rhs.sign_;
+            this->log_val_ = rhs.log_val_;
+
+            return *this;
+        }
+
+        if (this->sign_ == rhs.sign_) {
+            if(this->log_val_ >= rhs.log_val_) {
+                this->log_val_ = internal_add(this->log_val_, rhs.log_val_);
+            } else {
+                this->log_val_ = internal_add(rhs.log_val_, this->log_val_);
+            }
+        } else {
+            if (rhs.log_val_ < this->log_val_) {
+                this->log_val_ = internal_subtract(this->log_val_, rhs.log_val_);
+            } else if (rhs.log_val_ > this->log_val_) {
+                this->log_val_ = internal_subtract(rhs.log_val_, this->log_val_);
+                this->sign_ = as_sign(as_int(this->sign_) * (-1));
+            } else {
+                this->sign_ = Sign::null;
+            }
+        }
 
         return *this;
     }
@@ -155,6 +178,14 @@ class LogVal {
 
     [[nodiscard]] static auto as_sign(int8_t integer) -> Sign {
         return static_cast<Sign>(integer);
+    }
+
+    [[nodiscard]] static auto internal_add(T larger, T smaller) -> T {
+        return larger + std::log1p(std::exp(smaller - larger));
+    }
+
+    [[nodiscard]] static auto internal_subtract(T larger, T smaller) -> T {
+        return larger + std::log(T(1.0) - std::exp(smaller - larger));
     }
 
     T log_val_;
